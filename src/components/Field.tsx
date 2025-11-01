@@ -21,6 +21,10 @@ type Props = {
 
 export default function Field({ state, positions, result }: Props) {
   const players = Object.values(state.players);
+
+  // ⬇️ 이번 라운드 탈락자 집합(프론트에서 즉시 숨기기용)
+  const eliminatedSet = new Set(result?.eliminated ?? []);
+
   return (
     <div
       className="relative border rounded-xl overflow-hidden mx-auto"
@@ -44,13 +48,16 @@ export default function Field({ state, positions, result }: Props) {
           X
         </div>
       </div>
+
       {/* 중앙 구분선 */}
       <div className="absolute top-0 bottom-0 left-1/2 w-px bg-black/20" />
 
       {players.map((p) => {
         const pos = positions[p.id] ?? { x: p.x, y: p.y };
-        const dead = !p.alive || p.spectator;
-        if (dead) return null; // 👈 숨기기
+
+        const isEliminatedThisRound = eliminatedSet.has(p.id);
+        const dead = isEliminatedThisRound || !p.alive || p.spectator;
+        if (dead) return null;
 
         return (
           <div
