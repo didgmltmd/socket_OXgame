@@ -22,9 +22,6 @@ type Props = {
 export default function Field({ state, positions, result }: Props) {
   const players = Object.values(state.players);
 
-  // ⬇️ 이번 라운드 탈락자 집합(프론트에서 즉시 숨기기용)
-  const eliminatedSet = new Set(result?.eliminated ?? []);
-
   return (
     <div
       className="relative border rounded-xl overflow-hidden mx-auto"
