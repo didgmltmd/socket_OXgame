@@ -19,9 +19,10 @@ type Props = {
   };
   positions: Record<string, { x: number; y: number }>;
   result: { correct: "O" | "X"; eliminated: string[] } | null;
+  myId?: string; // ✅ 내 플레이어 id 추가
 };
 
-export default function Field({ state, positions, result }: Props) {
+export default function Field({ state, positions, result, myId }: Props) {
   const players = Object.values(state.players);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -89,15 +90,40 @@ export default function Field({ state, positions, result }: Props) {
           .filter((p) => p.alive && !p.spectator)
           .map((p) => {
             const pos = positions[p.id] ?? { x: p.x, y: p.y };
+            const isMe = myId && p.id === myId; // ✅ 나인지 체크
+
             return (
               <div
                 key={p.id}
                 className="absolute text-center"
-                style={{ left: pos.x - 8, top: pos.y - 8 }}
+                style={{
+                  left: pos.x - 8,
+                  top: pos.y - 8,
+                  zIndex: isMe ? 20 : 10, // 내가 위에 보이게
+                }}
               >
-                <div className="w-4 h-4 rounded-full bg-black/70" />
-                <div className="-mt-1 px-1 bg-white/80 rounded shadow text-[15px] whitespace-nowrap">
-                  {p.name}
+                {/* 동그라미 색 / 크기 변경 */}
+                <div
+                  className={
+                    "rounded-full " +
+                    (isMe
+                      ? "w-5 h-5 bg-blue-500 ring-2 ring-blue-200"
+                      : "w-4 h-4 bg-black/70")
+                  }
+                />
+                {/* 이름 태그 */}
+                <div
+                  className={
+                    "-mt-1 inline-flex items-center gap-1 px-1 bg-white/80 rounded shadow text-[15px] whitespace-nowrap " +
+                    (isMe ? "border border-blue-300" : "")
+                  }
+                >
+                  {isMe && (
+                    <span className="px-1 py-[1px] rounded bg-blue-500 text-white text-[10px]">
+                      나
+                    </span>
+                  )}
+                  <span>{p.name}</span>
                 </div>
               </div>
             );

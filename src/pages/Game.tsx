@@ -196,6 +196,15 @@ export default function Game() {
 
   if (!state) return <div className="p-6">게임 로딩…</div>;
 
+  const sid = socket.id;
+  let myPlayer = undefined;
+
+  if (sid && state.players[sid]) {
+    myPlayer = state.players[sid];
+  }
+
+  const isDead = myPlayer && !myPlayer.alive;
+
   return (
     <div className="p-4 space-y-4">
       <header className="flex items-center justify-between">
@@ -211,8 +220,19 @@ export default function Game() {
         </div>
       </header>
 
+      {isDead && (
+        <div className="text-center bg-red-100 text-red-600 font-semibold rounded-lg py-2">
+          💀 탈락하셨습니다! 관전모드입니다 💀
+        </div>
+      )}
+
       {question && <div className="text-lg font-medium">{question.text}</div>}
-      <Field state={state} positions={positions} result={result} />
+      <Field
+        state={state}
+        positions={positions}
+        result={result}
+        myId={socket.id ?? undefined}
+      />
 
       {result && (
         <div className="text-sm">
