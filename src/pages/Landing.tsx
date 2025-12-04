@@ -1,14 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { socket } from "../lib/socket";
 
 export default function Landing() {
-  const [name, setName] = useState("");
   const nav = useNavigate();
 
   useEffect(() => {
     const onState = () => {
-      console.log("[Landing] state 수신 → /lobby 이동");
       nav("/lobby");
     };
     const onErr = (e: any) => console.error("[Landing] server error:", e);
@@ -21,27 +19,54 @@ export default function Landing() {
     };
   }, [nav]);
 
+  const generateRandomKoreanName = () => {
+    const adjectives = [
+      "귀여운",
+      "빠른",
+      "용감한",
+      "똑똑한",
+      "행복한",
+      "멋진",
+      "깜찍한",
+      "즐거운",
+      "당당한",
+      "튼튼한",
+    ];
+
+    const animals = [
+      "강아지",
+      "고양이",
+      "토끼",
+      "호랑이",
+      "판다",
+      "여우",
+      "사자",
+      "곰돌이",
+      "펭귄",
+      "돌고래",
+    ];
+
+    const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const ani = animals[Math.floor(Math.random() * animals.length)];
+    const num = Math.floor(100 + Math.random() * 900);
+
+    return `${adj}${ani}${num}`;
+  };
+
   const onJoin = () => {
-    if (!name.trim()) return;
+    const name = generateRandomKoreanName();
+    console.log("[Landing] 🔥 랜덤 닉네임 생성:", name);
 
     const doJoin = () => {
-      console.log("[Landing] join emit");
       socket.emit("join", { name });
 
       socket.timeout(2000).emit("getState", (err: any, s: any) => {
-        if (err) {
-          console.warn("[Landing] getState timeout/err:", err);
-          return;
-        }
-        if (s) {
-          console.log("[Landing] getState 스냅샷 수신 → /lobby 이동");
-          nav("/lobby");
-        }
+        if (err) return console.warn("[Landing] getState timeout/err:", err);
+        if (s) nav("/lobby");
       });
     };
 
     if (!socket.connected) {
-      console.log("[Landing] socket 재연결 시도");
       socket.connect();
       socket.once("connect", doJoin);
     } else {
@@ -52,14 +77,8 @@ export default function Landing() {
   return (
     <div className="min-h-dvh grid place-items-center p-6">
       <div className="card w-full max-w-md p-6 space-y-4">
-        <h1 className="text-2xl font-bold">O/X 퀴즈쇼</h1>
-        <input
-          className="w-full border rounded p-3"
-          placeholder="닉네임"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <button className="btn w-full" onClick={onJoin}>
+        <h1 className="text-2xl font-bold mb-20">O/X 퀴즈쇼</h1>
+        <button className="btn w-full border-2" onClick={onJoin}>
           참여하기
         </button>
       </div>

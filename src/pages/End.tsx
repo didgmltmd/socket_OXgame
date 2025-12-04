@@ -11,6 +11,7 @@ type RoomState = {
 
 export default function End() {
   const [names, setNames] = useState<string[]>([]);
+  const [myName, setMyName] = useState<string | null>(null); // ✅ 내 닉네임
   const lockedRef = useRef(false);
   const nav = useNavigate();
 
@@ -33,7 +34,14 @@ export default function End() {
     };
 
     const onState = (s: RoomState) => {
+      // ✅ 내 닉네임 먼저 세팅
+      const me = s.players?.[socket.id];
+      if (me?.name) {
+        setMyName(me.name);
+      }
+
       if (lockedRef.current) return;
+
       if (Array.isArray(s?.winners)) {
         const mapped = s.winners.map((id) => s.players?.[id]?.name ?? id);
         setFinalWinners(mapped);
@@ -43,7 +51,6 @@ export default function End() {
     socket.on("end", onEnd);
     socket.on("state", onState);
 
-    // 백업 스냅샷도 잠금 로직 재사용
     socket.timeout(2000).emit("getState", (err: any, s: RoomState) => {
       if (!err && s) onState(s);
     });
@@ -58,12 +65,21 @@ export default function End() {
     <div className="min-h-dvh grid place-items-center p-6">
       <div className="card p-6 w-full max-w-md space-y-4 text-center">
         <h2 className="text-2xl font-bold">게임 종료</h2>
+
+        {myName && (
+          <p className="text-sm text-gray-600">
+            내 닉네임: <b>{myName}</b>
+          </p>
+        )}
+
         {names.length === 0 && <p>무승부!</p>}
+
         {names.length === 1 && (
           <p>
             우승자: <b>{names[0]}</b>
           </p>
         )}
+
         {names.length > 1 && (
           <div>
             <p>공동 우승 !!</p>
@@ -74,6 +90,7 @@ export default function End() {
             </ul>
           </div>
         )}
+
         <button className="btn w-full" onClick={() => nav("/")}>
           처음으로
         </button>

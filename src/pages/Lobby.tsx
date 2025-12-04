@@ -21,19 +21,10 @@ export default function Lobby() {
   const nav = useNavigate();
 
   useEffect(() => {
-    console.log(
-      "[Lobby] mount: socket.id=",
-      socket.id,
-      "connected=",
-      socket.connected
-    );
-
     const onState = (s: RoomState) => {
-      console.log("[Lobby] state 수신:", s);
       setState(s);
     };
     const onPhase = ({ phase }: { phase: string }) => {
-      console.log("[Lobby] phase 수신:", phase);
       if (phase === "STARTING" || phase === "QUESTION") nav("/game");
     };
 
@@ -45,7 +36,6 @@ export default function Lobby() {
         console.warn("[Lobby] getState timeout/err:", err);
         return;
       }
-      console.log("[Lobby] getState 스냅샷:", s);
       setState(s);
     });
 

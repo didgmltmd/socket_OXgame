@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { socket } from "../lib/socket";
+import { Joystick } from "../components/Joystick";
 import Field from "../components/Field";
 
 interface Player {
@@ -18,11 +19,41 @@ interface RoomState {
   questionIndex: number;
 }
 
+function sendInput(dir: "up" | "down" | "left" | "right", pressed: boolean) {
+  socket.emit("input", { [dir]: pressed });
+}
+
 export default function Game() {
   const [state, setState] = useState<RoomState | null>(null);
   const [positions, setPositions] = useState<
     Record<string, { x: number; y: number }>
   >({});
+
+  const joyDirRef = useRef({
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+  });
+
+  const handleJoystickChange = (dir: {
+    up: boolean;
+    down: boolean;
+    left: boolean;
+    right: boolean;
+  }) => {
+    const prev = joyDirRef.current;
+
+    // 바뀐 방향만 socket.emit 보내기
+    (["up", "down", "left", "right"] as const).forEach((k) => {
+      if (prev[k] !== dir[k]) {
+        sendInput(k, dir[k]);
+      }
+    });
+
+    joyDirRef.current = dir;
+  };
+
   const phaseRef = useRef<string | undefined>(state?.phase);
   useEffect(() => {
     phaseRef.current = state?.phase;
@@ -124,16 +155,16 @@ export default function Game() {
     const kd = (e: KeyboardEvent) => {
       switch (e.code) {
         case "KeyW":
-          socket.emit("input", { up: true });
+          sendInput("up", true);
           break;
         case "KeyS":
-          socket.emit("input", { down: true });
+          sendInput("down", true);
           break;
         case "KeyA":
-          socket.emit("input", { left: true });
+          sendInput("left", true);
           break;
         case "KeyD":
-          socket.emit("input", { right: true });
+          sendInput("right", true);
           break;
       }
     };
@@ -141,16 +172,16 @@ export default function Game() {
     const ku = (e: KeyboardEvent) => {
       switch (e.code) {
         case "KeyW":
-          socket.emit("input", { up: false });
+          sendInput("up", false);
           break;
         case "KeyS":
-          socket.emit("input", { down: false });
+          sendInput("down", false);
           break;
         case "KeyA":
-          socket.emit("input", { left: false });
+          sendInput("left", false);
           break;
         case "KeyD":
-          socket.emit("input", { right: false });
+          sendInput("right", false);
           break;
       }
     };
@@ -180,15 +211,17 @@ export default function Game() {
         </div>
       </header>
 
-      <Field state={state} positions={positions} result={result} />
-
       {question && <div className="text-lg font-medium">{question.text}</div>}
+      <Field state={state} positions={positions} result={result} />
 
       {result && (
         <div className="text-sm">
           정답: <b>{result.correct}</b> — 탈락 {result.eliminated.length}명
         </div>
       )}
+      <div className="fixed left-4 bottom-4 md:hidden z-50">
+        <Joystick onDirectionChange={handleJoystickChange} />
+      </div>
     </div>
   );
 }
