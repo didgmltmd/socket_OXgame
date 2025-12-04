@@ -34,10 +34,12 @@ export default function End() {
     };
 
     const onState = (s: RoomState) => {
-      // ✅ 내 닉네임 먼저 세팅
-      const me = s.players?.[socket.id];
-      if (me?.name) {
-        setMyName(me.name);
+      const sid = socket.id;
+      if (sid) {
+        const me = s.players?.[sid];
+        if (me?.name) {
+          setMyName(me.name);
+        }
       }
 
       if (lockedRef.current) return;
@@ -47,7 +49,6 @@ export default function End() {
         setFinalWinners(mapped);
       }
     };
-
     socket.on("end", onEnd);
     socket.on("state", onState);
 
