@@ -86,48 +86,48 @@ export default function Field({ state, positions, result, myId }: Props) {
         <div className="absolute top-0 bottom-0 left-1/2 w-px bg-black/20" />
 
         {/* 플레이어들 (좌표 로직 그대로) */}
-        {players
-          .filter((p) => p.alive && !p.spectator)
-          .map((p) => {
-            const pos = positions[p.id] ?? { x: p.x, y: p.y };
-            const isMe = myId && p.id === myId; // ✅ 나인지 체크
+        {players.map((p) => {
+          const pos = positions[p.id] ?? { x: p.x, y: p.y };
+          const isMe = myId !== undefined && p.id === myId;
 
-            return (
+          // 나도 아니고, 관전자면 안 그림
+          if (!isMe && p.spectator) return null;
+
+          // 색/스타일 분기
+          const circleClass = isMe
+            ? "w-5 h-5 bg-blue-500 ring-2 ring-blue-200" // ✅ 나
+            : p.alive
+            ? "w-4 h-4 bg-black/70" // 살아 있는 다른 사람
+            : "w-4 h-4 bg-gray-400"; // 죽은 사람(관전 중)
+
+          return (
+            <div
+              key={p.id}
+              className="absolute text-center"
+              style={{
+                left: pos.x - 8,
+                top: pos.y - 8,
+                zIndex: isMe ? 20 : 10,
+              }}
+            >
+              <div className={`rounded-full ${circleClass}`} />
+
               <div
-                key={p.id}
-                className="absolute text-center"
-                style={{
-                  left: pos.x - 8,
-                  top: pos.y - 8,
-                  zIndex: isMe ? 20 : 10, // 내가 위에 보이게
-                }}
+                className={
+                  "-mt-1 inline-flex items-center gap-1 px-1 bg-white/80 rounded shadow text-[15px] whitespace-nowrap " +
+                  (isMe ? "border border-blue-300" : "")
+                }
               >
-                {/* 동그라미 색 / 크기 변경 */}
-                <div
-                  className={
-                    "rounded-full " +
-                    (isMe
-                      ? "w-5 h-5 bg-blue-500 ring-2 ring-blue-200"
-                      : "w-4 h-4 bg-black/70")
-                  }
-                />
-                {/* 이름 태그 */}
-                <div
-                  className={
-                    "-mt-1 inline-flex items-center gap-1 px-1 bg-white/80 rounded shadow text-[15px] whitespace-nowrap " +
-                    (isMe ? "border border-blue-300" : "")
-                  }
-                >
-                  {isMe && (
-                    <span className="px-1 py-[1px] rounded bg-blue-500 text-white text-[10px]">
-                      나
-                    </span>
-                  )}
-                  <span>{p.name}</span>
-                </div>
+                {isMe && (
+                  <span className="px-1 py-[1px] rounded bg-blue-500 text-white text-[10px]">
+                    나
+                  </span>
+                )}
+                <span>{p.name}</span>
               </div>
-            );
-          })}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
