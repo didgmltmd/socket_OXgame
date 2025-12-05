@@ -90,6 +90,12 @@ export default function Field({ state, positions, result, myId }: Props) {
           const pos = positions[p.id] ?? { x: p.x, y: p.y };
           const isMe = myId !== undefined && p.id === myId;
 
+          const isEliminated = !!result && result.eliminated.includes(p.id);
+
+          if (isEliminated || !p.alive) {
+            return null;
+          }
+
           // 나도 아니고, 관전자면 안 그림
           if (!isMe && p.spectator) return null;
 
