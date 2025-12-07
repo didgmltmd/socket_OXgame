@@ -55,8 +55,7 @@ export default function Landing() {
 
   const onJoin = () => {
     const name = generateRandomKoreanName();
-    console.log("[Landing] 🔥 랜덤 닉네임 생성:", name);
-
+    
     const doJoin = () => {
       socket.emit("join", { name });
 

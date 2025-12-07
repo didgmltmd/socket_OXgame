@@ -68,13 +68,6 @@ export default function Game() {
   const nav = useNavigate();
 
   useEffect(() => {
-    console.log(
-      "[Game] mount, socket.id=",
-      socket.id,
-      "connected=",
-      socket.connected
-    );
-
     const onState = (s: RoomState) => {
       console.log("[Game] state:", s);
       setState(s);
@@ -82,6 +75,7 @@ export default function Game() {
       if (s.phase === "LOBBY") nav("/lobby");
       if (s.phase === "END") nav("/end");
     };
+
     const onTick = ({
       players,
       countdown,
@@ -108,19 +102,24 @@ export default function Game() {
         );
       }
     };
+
     const onPhase = ({ phase }: { phase: string }) => {
       console.log("[Game] phase:", phase);
       if (phase === "END") nav("/end");
       if (phase === "QUESTION") setResult(null);
     };
+
+
     const onQuestion = (q: { id: number; text: string }) => {
-      console.log("[Game] question:", q);
       setQuestion(q);
     };
+
+
     const onResult = (r: { correct: "O" | "X"; eliminated: string[] }) => {
-      console.log("[Game] result:", r);
       setResult(r);
     };
+
+
     const onEnd = () => nav("/end");
 
     socket.on("state", onState);
@@ -239,9 +238,12 @@ export default function Game() {
           정답: <b>{result.correct}</b> — 탈락 {result.eliminated.length}명
         </div>
       )}
+
       <div className="fixed left-4 bottom-4 md:hidden z-50">
         <Joystick onDirectionChange={handleJoystickChange} />
       </div>
+
+      
     </div>
   );
 }

@@ -11,7 +11,7 @@ type RoomState = {
 
 export default function End() {
   const [names, setNames] = useState<string[]>([]);
-  const [myName, setMyName] = useState<string | null>(null); // ✅ 내 닉네임
+  const [myName, setMyName] = useState<string | null>(null); 
   const lockedRef = useRef(false);
   const nav = useNavigate();
 
@@ -49,6 +49,7 @@ export default function End() {
         setFinalWinners(mapped);
       }
     };
+    
     socket.on("end", onEnd);
     socket.on("state", onState);
 
