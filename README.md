@@ -115,7 +115,7 @@ Socket OX Game은 **“실시간 상호작용”과 “게임 로직”을 직�
 
 ### 🏠 1. 입장 
 
-<img src="./images/lading.png" width="600px" alt="Lobby Page" />
+<img src="./images/landing.png" width="600px" alt="Lobby Page" />
 
 - 소켓 연결 상태 확인
 - 추후 로비/방 선택 기능 확장 가능 구조
